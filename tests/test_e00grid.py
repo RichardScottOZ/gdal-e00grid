@@ -133,9 +133,10 @@ class TestE00Grid:
         ds = gdal.Open('data/e00grid/fake_e00grid_compressed.e00')
         assert ds is not None
         line0 = ds.ReadRaster(0, 0, 5, 1)
-        ds.ReadRaster(0, 1, 5, 1)
+        line1 = ds.ReadRaster(0, 1, 5, 1)
         line2 = ds.ReadRaster(0, 2, 5, 1)
         assert line0 != line2, 'should not have gotten the same values'
+        assert line1 is not None, 'failed to read line 1'
         # Re-read to verify seeking works
         ds.ReadRaster(0, 0, 5, 1)
         line2_bis = ds.ReadRaster(0, 2, 5, 1)
@@ -150,7 +151,8 @@ class TestE00Grid:
         assert band.GetMinimum() == 1, 'did not get expected minimum value'
         assert band.GetMaximum() == 50, 'did not get expected maximum value'
         stats = band.GetStatistics(False, True)
-        assert stats == [1.0, 50.0, 25.5, 24.5], 'did not get expected statistics'
+        expected_stats = [1.0, 50.0, 25.5, 24.5]
+        assert stats == expected_stats, 'did not get expected statistics'
         ds = None
 
     def test_invalid_file_rejected(self):
