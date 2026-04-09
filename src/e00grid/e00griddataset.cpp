@@ -110,7 +110,11 @@ class E00GRIDDataset final: public GDALPamDataset
     E00GRIDDataset();
     ~E00GRIDDataset() override;
 
+#if GDAL_VERSION_NUM >= 3130000
+    CPLErr GetGeoTransform( GDALGeoTransform & ) const override;
+#else
     CPLErr GetGeoTransform( double * ) override;
+#endif
     const OGRSpatialReference* GetSpatialRef() const override;
 
     static GDALDataset *Open( GDALOpenInfo * );
@@ -693,10 +697,15 @@ GDALDataset *E00GRIDDataset::Open( GDALOpenInfo * poOpenInfo )
 /*                          GetGeoTransform()                           */
 /************************************************************************/
 
-CPLErr E00GRIDDataset::GetGeoTransform( double * padfTransform )
-
+#if GDAL_VERSION_NUM >= 3130000
+CPLErr E00GRIDDataset::GetGeoTransform( GDALGeoTransform &gt ) const
 {
-    memcpy(padfTransform, adfGeoTransform, 6 * sizeof(double));
+    memcpy(gt.data(), adfGeoTransform, sizeof(adfGeoTransform));
+#else
+CPLErr E00GRIDDataset::GetGeoTransform( double * padfTransform )
+{
+    memcpy(padfTransform, adfGeoTransform, sizeof(adfGeoTransform));
+#endif
 
     return CE_None;
 }
