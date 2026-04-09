@@ -95,9 +95,11 @@ ELSE(WIN32)
       IF (GDAL_CONFIG) 
 
         ## extract gdal version 
-        EXEC_PROGRAM(${GDAL_CONFIG}
-            ARGS --version
-            OUTPUT_VARIABLE GDAL_VERSION )
+        execute_process(
+            COMMAND ${GDAL_CONFIG} --version
+            OUTPUT_VARIABLE GDAL_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
         STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\1" GDAL_VERSION_MAJOR "${GDAL_VERSION}")
         STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\2" GDAL_VERSION_MINOR "${GDAL_VERSION}")
         STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\3" GDAL_VERSION_MICRO "${GDAL_VERSION}")
@@ -120,9 +122,11 @@ ELSE(WIN32)
         ENDIF( (GDAL_VERSION_MAJOR EQUAL 3) AND (GDAL_VERSION_MINOR EQUAL 0) AND (GDAL_VERSION_MICRO LESS 3) )
 
         # set INCLUDE_DIR to prefix+include
-        EXEC_PROGRAM(${GDAL_CONFIG}
-            ARGS --prefix
-            OUTPUT_VARIABLE GDAL_PREFIX)
+        execute_process(
+            COMMAND ${GDAL_CONFIG} --prefix
+            OUTPUT_VARIABLE GDAL_PREFIX
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
         #SET(GDAL_INCLUDE_DIR ${GDAL_PREFIX}/include CACHE STRING INTERNAL)
         FIND_PATH(GDAL_INCLUDE_DIR 
             gdal.h 
@@ -133,9 +137,11 @@ ELSE(WIN32)
             )
 
         ## extract link dirs for rpath  
-        EXEC_PROGRAM(${GDAL_CONFIG}
-            ARGS --libs
-            OUTPUT_VARIABLE GDAL_CONFIG_LIBS )
+        execute_process(
+            COMMAND ${GDAL_CONFIG} --libs
+            OUTPUT_VARIABLE GDAL_CONFIG_LIBS
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
 
         ## split off the link dirs (for rpath)
         ## use regular expression to match wildcard equivalent "-L*<endchar>"
@@ -174,7 +180,17 @@ ELSE(WIN32)
             SET(GDAL_LIBRARY ${GDAL_LINK_DIRECTORIES}/lib${GDAL_LIB_NAME}.dylib CACHE STRING INTERNAL FORCE)
           ENDIF (NOT GDAL_LIBRARY)
         ELSE (APPLE)
-          FIND_LIBRARY(GDAL_LIBRARY NAMES ${GDAL_LIB_NAME} PATHS ${GDAL_LINK_DIRECTORIES}/lib)
+          FIND_LIBRARY(
+              GDAL_LIBRARY
+              NAMES ${GDAL_LIB_NAME} gdal
+              HINTS ${GDAL_LINK_DIRECTORIES}
+              PATHS
+                  ${GDAL_PREFIX}/lib
+                  /usr/local/lib
+                  /usr/lib
+                  /usr/lib64
+                  /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+          )
         ENDIF (APPLE)
       
       ELSE(GDAL_CONFIG)
