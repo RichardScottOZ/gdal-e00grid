@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     g++ \
     make \
-    libgdal-dev \
     python3-pip \
     python3-pytest \
     && rm -rf /var/lib/apt/lists/*
