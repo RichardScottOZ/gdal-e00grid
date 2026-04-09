@@ -41,8 +41,6 @@
 #define E00ReadNextLine     GDALE00GRIDReadNextLine
 #define E00ReadRewind       GDALE00GRIDReadRewind
 
-CPL_CVSID("$Id$")
-
 #undef NULL
 #define NULL nullptr
 #include "e00read.c"
