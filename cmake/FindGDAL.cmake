@@ -182,7 +182,7 @@ ELSE(WIN32)
         ELSE (APPLE)
           FIND_LIBRARY(
               GDAL_LIBRARY
-              NAMES ${GDAL_LIB_NAME} gdal GDAL
+              NAMES ${GDAL_LIB_NAME} gdal
               HINTS ${GDAL_LINK_DIRECTORIES}
               PATHS
                   ${GDAL_PREFIX}/lib
